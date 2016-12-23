@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  youtube_url: MyText
+  played: false
+  plays_count: 1
+  body: MyText
+  user_id: 1
+
+two:
+  youtube_url: MyText
+  played: false
+  plays_count: 1
+  body: MyText
+  user_id: 1
