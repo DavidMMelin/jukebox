@@ -13,3 +13,7 @@ module Jukebox
     # -- all .rb files in that directory are automatically loaded.
   end
 end
+
+Yt.configure do |config|
+  config.api_key = Rails.application.secrets.youtube_api_key
+end

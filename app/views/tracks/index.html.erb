@@ -1,8 +1,117 @@
-TRACKS
+<div class="container">
+  <div clas="row">
+    <div class="col-sm-12 video-container">
+      <div class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/<%= @tracks.first.youtube_id %>?start=0&autoplay=1&controls=0" frameborder="0" allowfullscreen></iframe>
+      </div>
+    </div>
 
-to add:
-- MOBILE FIRST
-- Play now playing video
-- List all upcoming songs with metadata including body, picture?
-- Show an ADD TO PLAYLIST button
+    <div class="col-sm-8 offset-sm-2 text-center">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Note from poster:</h3>
+        </div>
+        <div class="panel-body">
+          <%= @tracks.first.body %>
+        </div>
+      </div>
+    </div>
 
+    <%= form_for @track, url: {action: 'create'} do |f| %>
+      <%= f.hidden_field :youtube_id %>
+    <% end %>
+    <div class="form-group col-sm-8 offset-sm-2">
+      <label for="exampleInputEmail1">Search For A New Song</label>
+      <input type="text" class="form-control" id="typeahead-input" data-provide="typeahead" disabled placeholder="Search for a song...">
+
+      <ul class="list-group" id="search-results"></ul>
+    </div>
+
+    <% @tracks.each do |track| %>
+      <div class="col-sm-12 pt-1">
+        <div class="col-sm-2 offset-sm-2">
+          <img src="<%= track.cover_url %>">
+        </div>
+        <div class="col-sm-6">
+          <div class="row"><%= track.artist %> - <%= track.title %></div>
+          <div><%= track.duration %></div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+</div>
+<script >
+
+</script>
+
+<script type="text/javascript" >
+  googleApiClientReady = function() {
+    gapi.client.init({
+      'apiKey': '<%= Rails.application.secrets.youtube_api_key %>'
+    }).then(function() {
+      gapi.client.load('youtube', 'v3', function() {
+        var currentResults = {};
+        $('#typeahead-input').attr('disabled', false);
+        $('#typeahead-input').typeahead({
+          highlighter: function(video) {
+            return video;
+          },
+          source: function (query, process) {
+            var request = gapi.client.youtube.search.list({
+              q: query,
+              part: 'snippet',
+              maxResults: 5,
+              type: 'video',
+              videoCategoryId: '10',
+              videoEmbeddable: 'true'
+            });
+            return request.execute(function(response) {
+              var typeahead_html= [];
+              currentResults = {};
+              response.items.forEach(function(video) {
+                currentResults[video.id.videoId] = video;
+                html = '<div class="update-form" data-youtube-id="' + video.id.videoId + '">';
+                html += '<img height="50" class=thumb"" src="' + video.snippet.thumbnails.default.url + '" >';
+                html += '<div class="title">' + video.snippet.title + '</div>';
+                html += '</div>';
+                typeahead_html.push(html);
+              });
+              return process(typeahead_html);
+            });
+          },
+          afterSelect: function(itemHtml) {
+            var youtubeId = $(itemHtml).attr('data-youtube-id');
+            currentResults[youtubeId];
+            $('#typeahead-input').val('');
+
+            //TODO: This is temp, soon add body, but for now just post
+            $.ajax({
+              type: "POST",
+              url: '/api/tracks',
+              data: {
+                track: {
+                  youtube_id: youtubeId,
+                  body: 'Need to add comments input'
+                }
+              },
+              success: function(resp) {
+                console.error("=============> success", resp);
+              },
+              error: function(resp) {
+                console.error("=============> clog error", resp);
+              },
+              dataType: 'json'
+            });
+          }
+        });
+
+      });
+    });
+  };
+
+  $(function() {
+    var csrf_token = '<%= form_authenticity_token %>';
+  });
+</script>
+<script src="https://apis.google.com/js/client.js?onload=googleApiClientReady"></script>
