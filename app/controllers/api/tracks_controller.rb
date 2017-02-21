@@ -1,8 +1,8 @@
 class Api::TracksController < ApplicationController
 
   def index
-    #TODO: order correctly...
-    @tracks = Track.order(created_at: :asc)
+    Track.update_playing
+    @tracks = [Track.playing] + Track.up_next_list
   end
 
   def create

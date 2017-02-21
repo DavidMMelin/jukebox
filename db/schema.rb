@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161223192424) do
+ActiveRecord::Schema.define(version: 20170221032230) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(version: 20161223192424) do
     t.string   "title"
     t.integer  "duration"
     t.text     "cover_url"
+    t.integer  "price",       default: 0
     t.index ["created_at"], name: "index_tracks_on_created_at", using: :btree
     t.index ["playing"], name: "index_tracks_on_playing", using: :btree
     t.index ["user_id"], name: "index_tracks_on_user_id", using: :btree
